@@ -5,7 +5,6 @@ import { from, of } from 'rxjs';
 import { ToastService, WakoHttpRequestService } from '@wako-app/mobile-sdk';
 import { Provider, ProviderList } from '../entities/provider';
 import { countryCodeToEmoji } from './tools';
-import { SourceQuality } from '../entities/source-quality';
 import { HeliosCacheService } from './provider-cache.service';
 
 const CACHE_KEY_PROVIDERS = 'CACHE_KEY_PROVIDERS';
@@ -20,6 +19,13 @@ export class ProviderService {
     setTimeout(() => {
       this.refreshProviders();
     }, 10000);
+  }
+
+  async setDefaultProvidersIfEmpty() {
+    const providerUrl = await this.getProviderUrl();
+    if (!providerUrl) {
+      await this.setProviderUrl('https://bit.ly/wako-providers');
+    }
   }
 
   private providerStorageKey = 'provider_key';
@@ -155,16 +161,4 @@ export class ProviderService {
     });
   }
 
-  getSourceQualitySettings(): Promise<SourceQuality> {
-    return this.storage.get(this.sourceQualityStorageKey).then(sourceQualitySettings => {
-      if (!sourceQualitySettings) {
-        sourceQualitySettings = new SourceQuality();
-      }
-      return sourceQualitySettings;
-    });
-  }
-
-  setSourceQualitySettings(sourceQualitySettings: SourceQuality) {
-    return this.storage.set(this.sourceQualityStorageKey, sourceQualitySettings);
-  }
 }

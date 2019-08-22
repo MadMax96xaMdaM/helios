@@ -2,11 +2,11 @@
   <ion-list-header>
     <ion-label>
       <ion-icon name="people" slot="start"></ion-icon>
-      {{ 'pages.settings.list.cloud-account.header' | translate }}
+      {{ 'pages.settings.list.debrid-account.header' | translate }}
     </ion-label>
   </ion-list-header>
   <ion-item button (click)="openCloudAccount()">
-    <ion-label>{{ 'pages.settings.list.cloud-account.item' | translate }}</ion-label>
+    <ion-label>{{ 'pages.settings.list.debrid-account.item' | translate }}</ion-label>
   </ion-item>
 </ion-list>
 
@@ -19,5 +19,27 @@
   </ion-list-header>
   <ion-item button (click)="openProviders()">
     <ion-label>{{ 'pages.settings.list.provider.item' | translate }}</ion-label>
+  </ion-item>
+</ion-list>
+
+
+<ion-list lines="full" *ngIf="settings">
+  <ion-list-header>
+    <ion-label>
+      <ion-icon name="play"></ion-icon>
+      {{ 'pages.settings.list.play-button.header' | translate }}
+    </ion-label>
+  </ion-list-header>
+  <ion-item>
+    <ion-label>{{ 'pages.settings.list.play-button.item' | translate }}</ion-label>
+    <ion-select [ngModel]="settings.defaultPlayButtonAction" (ngModelChange)="changeDefaultPlayButtonAction($event)">
+      <ion-select-option value="open-kodi">{{'actionSheets.open-source.options.open-kodi'|translate}}</ion-select-option>
+      <ion-select-option value="open-browser">{{'actionSheets.open-source.options.open-browser'|translate}}</ion-select-option>
+      <ion-select-option value="copy-url">{{'actionSheets.open-source.options.copy-url'|translate}}</ion-select-option>
+      <ion-select-option value="share-url">{{'actionSheets.open-source.options.share-url'|translate}}</ion-select-option>
+      <ion-select-option value="open-vlc">{{'actionSheets.open-source.options.open-vlc'|translate}}</ion-select-option>
+      <ion-select-option value="download-vlc">{{'actionSheets.open-source.options.download-vlc'|translate}}</ion-select-option>
+      <ion-select-option value="open-elementum">{{'actionSheets.open-source.options.open-elementum'|translate}}</ion-select-option>
+    </ion-select>
   </ion-item>
 </ion-list>
