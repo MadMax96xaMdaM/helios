@@ -30,7 +30,6 @@ export class ProviderService {
 
   private providerStorageKey = 'provider_key';
   private providerUrlStorageKey = 'provider_url';
-  private sourceQualityStorageKey = 'sq_settings_key';
 
   static getNameWithEmojiFlag(provider: Provider) {
     const emojiLanguages = [];
