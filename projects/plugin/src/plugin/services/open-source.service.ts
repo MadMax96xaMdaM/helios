@@ -120,7 +120,7 @@ export class OpenSourceService {
 
     const buttons = [];
 
-    if (kodiOpenMedia.show) {
+    if (kodiOpenMedia && kodiOpenMedia.show) {
       HeliosCacheService.set(getPreviousFileNamePlayed(kodiOpenMedia.show.traktId), torrent.title, '20d');
     }
 
