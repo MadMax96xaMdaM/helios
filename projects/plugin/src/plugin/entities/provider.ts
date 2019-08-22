@@ -27,6 +27,7 @@ export interface Provider {
   response_type: 'json' | 'text';
   time_to_wait_between_each_request_ms?: number; // In list mode we're gonna do request on all visible media
   time_to_wait_on_too_many_request_ms?: number;
+  timeout_ms?: number
   token?: {
     // If we need to store a token for each request
     query: string;

@@ -74,7 +74,7 @@ export abstract class TorrentsFromProviderBaseQuery {
         responseType: provider.response_type
       },
       provider.token.token_validity_time_ms || null,
-      5000,
+      provider.timeout_ms || 5000,
       true,
       provider.time_to_wait_on_too_many_request_ms,
       provider.time_to_wait_between_each_request_ms
