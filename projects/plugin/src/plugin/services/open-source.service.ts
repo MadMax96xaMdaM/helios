@@ -458,10 +458,9 @@ export class OpenSourceService {
 
   share(torrentTitle: string, cachedUrl: string) {
     window['plugins'].socialsharing.shareWithOptions({
-      message: torrentTitle, // fi. for email
-      subject: torrentTitle, // fi. for email
       url: cachedUrl,
       chooserTitle: torrentTitle
     });
+
   }
 }
