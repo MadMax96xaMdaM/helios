@@ -13,6 +13,9 @@
         "play-button": {
           "header": "Play Button",
           "item": "Play button default action"
+        },
+        "actions": {
+          "header": "Reorder/Toggle Actions"
         }
       }
     },
@@ -128,8 +131,10 @@
   "sources": {
     "segments": {
       "debrid": "Debrid",
-      "torrents": "Torrents"
-    }
+      "torrents": "Torrents",
+      "stats": "Stats"
+    },
+    "statsInfo":  "Note: Duplicated torrents are removed from the torrents list"
   },
   "shared": {
     "noResult": "No result",
