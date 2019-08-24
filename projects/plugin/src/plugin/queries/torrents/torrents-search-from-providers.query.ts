@@ -39,7 +39,7 @@ export class TorrentsSearchFromProvidersQuery extends TorrentsFromProviderBaseQu
 
     return forkJoin(...obss).pipe(
       map(() => {
-        return super.excludeDuplicateTorrentsByHash(allTorrents);
+        return allTorrents;
       })
     );
   }

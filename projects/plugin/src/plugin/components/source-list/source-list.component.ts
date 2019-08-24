@@ -8,6 +8,7 @@ import { SourceByQuality } from '../../entities/source-by-quality';
 import { DebridSource } from '../../entities/debrid-source';
 import { TorrentSource } from '../../entities/torrent-source';
 
+
 @Component({
   selector: 'wk-source-list',
   templateUrl: './source-list.component.html',
@@ -40,11 +41,15 @@ export class SourceListComponent implements OnInit {
 
     this.hasDebridAccount = await this.debridAccountService.hasAtLeastOneAccount();
 
+
+    if (!this.hasDebridAccount) {
+      this.segment = 'torrents';
+    }
+
     this.debridSourcesByQuality = getSourcesByQuality<DebridSource>(this.sourceDetail.debridSources, sortTorrentsBySize);
     this.torrentSourcesByQuality = getSourcesByQuality<TorrentSource>(this.sourceDetail.torrentSources, sortTorrentsBalanced);
 
     this.totalDebridSource = this.sourceDetail.debridSources.length;
     this.totalTorrentSource = this.sourceDetail.torrentSources.length;
-
   }
 }

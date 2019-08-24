@@ -17,7 +17,8 @@ export class DebridSource {
     public fromTorrent: boolean,
     public torrentHash: string,
     public isPackage: boolean,
-    public serviceName: 'PM' | 'RD'
+    public serviceName: 'PM' | 'RD',
+    public torrentProviderName: string
   ) {
   }
 }

@@ -9,6 +9,10 @@ import { TorrentsEpisodesFromProvidersQuery } from '../../queries/torrents/torre
 import { TorrentsSearchFromProvidersQuery } from '../../queries/torrents/torrents-search-from-providers.query';
 import { TorrentSource } from '../../entities/torrent-source';
 import { getScoreMatchingName, getSourcesByQuality, sortTorrentsBalanced } from '../tools';
+import { Provider } from '../../entities/provider';
+import { TorrentSourceWithStats } from '../../entities/torrent-source-with-stats';
+import { SourceTorrentStats } from '../../entities/source-torrent-stats';
+import { TorrentsFromProviderBaseQuery } from '../../queries/torrents/torrents-from-provider-base.query';
 
 @Injectable()
 export class TorrentSourceService {
@@ -71,28 +75,76 @@ export class TorrentSourceService {
   getMovieTorrents(movie: Movie) {
     return from(this.providerService.getAll()).pipe(
       switchMap(providers => {
-        return TorrentsMoviesFromProvidersQuery.getData(movie, providers);
-      }),
-      switchMap(torrents => this.excludeUnwantedHighQuality(torrents))
+        return TorrentsMoviesFromProvidersQuery.getData(movie, providers)
+          .pipe(
+            switchMap(torrents => this.excludeUnwantedHighQuality(torrents)),
+            map(torrents => this.getTorrentSourceWithStats(torrents, providers))
+          )
+      })
     );
   }
 
   getEpisodeTorrents(show: Show, episode: Episode) {
     return from(this.providerService.getAll()).pipe(
       switchMap(providers => {
-        return TorrentsEpisodesFromProvidersQuery.getData(show, episode, providers);
-      }),
-      switchMap(torrents => this.excludeUnwantedHighQuality(torrents))
+        return TorrentsEpisodesFromProvidersQuery.getData(show, episode, providers)
+          .pipe(
+            switchMap(torrents => this.excludeUnwantedHighQuality(torrents)),
+            map(torrents => this.getTorrentSourceWithStats(torrents, providers))
+          )
+      })
     );
   }
 
   getTorrents(query: string, category: 'movie' | 'tv' | 'anime') {
     return from(this.providerService.getAll()).pipe(
       switchMap(providers => {
-        return TorrentsSearchFromProvidersQuery.getData(query, category, providers);
-      }),
-      switchMap(torrents => this.excludeUnwantedHighQuality(torrents))
+        return TorrentsSearchFromProvidersQuery.getData(query, category, providers)
+          .pipe(
+            map(torrents => {
+              return this.getTorrentSourceWithStats(torrents, providers)
+            })
+          )
+      })
     );
+  }
+
+  private getTorrentSourceWithStats(torrents: TorrentSource[], providers: Provider[]) {
+
+    const torrentSourceWithStats: TorrentSourceWithStats = {
+      stats: this.getStats(torrents, providers),
+      torrents: TorrentsFromProviderBaseQuery.excludeDuplicateTorrentsByHash(torrents)
+    };
+
+    return torrentSourceWithStats
+  }
+
+  private getStats(torrents: TorrentSource[], providers: Provider[]) {
+    const stats: SourceTorrentStats[] = [];
+
+    const mapByProviders = new Map<string, SourceTorrentStats>();
+
+    torrents.forEach(torrent => {
+      if (!mapByProviders.has(torrent.providerName)) {
+        mapByProviders.set(torrent.providerName, {providerName: torrent.providerName, torrents: 0});
+      }
+
+      const data = mapByProviders.get(torrent.providerName);
+      data.torrents++;
+
+      mapByProviders.set(torrent.providerName, data);
+
+    });
+
+    providers.forEach(provider => {
+
+      stats.push({
+        providerName: provider.name,
+        torrents: mapByProviders.has(provider.name) ? mapByProviders.get(provider.name).torrents : 0
+      })
+    });
+
+    return stats;
   }
 
   private hasBestTorrent(torrents: TorrentSource[]) {

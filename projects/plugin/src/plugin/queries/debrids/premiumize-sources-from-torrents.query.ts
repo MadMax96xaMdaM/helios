@@ -52,8 +52,10 @@ export class PremiumizeSourcesFromTorrentsQuery {
                   true,
                   torrent.hash,
                   torrent.isPackage,
-                  'PM'
+                  'PM',
+                  torrent.providerName
                 );
+
 
                 debridSource.debridSourceFileObs = PremiumizeTransferDirectdlForm.submit(torrent.url).pipe(
                   switchMap(_data => {

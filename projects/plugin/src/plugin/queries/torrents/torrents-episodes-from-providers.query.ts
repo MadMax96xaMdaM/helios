@@ -99,7 +99,7 @@ export class TorrentsEpisodesFromProvidersQuery extends TorrentsFromProviderBase
 
           return forkJoin(...obss).pipe(
             map(() => {
-              return super.excludeDuplicateTorrentsByHash(allTorrents);
+              return allTorrents;
             }),
             tap(torrents => {
               HeliosCacheService.set(cacheKey, torrents, '1h');

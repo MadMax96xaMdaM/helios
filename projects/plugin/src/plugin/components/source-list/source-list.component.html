@@ -3,15 +3,20 @@
 </ion-card>
 
 <div *ngIf="totalTorrentSource > 0">
-  <ion-segment *ngIf="hasDebridAccount" (ionChange)="segment = $event.detail.value" [value]="segment" scrollable>
-    <ion-segment-button value="debrid">
+  <ion-segment (ionChange)="segment = $event.detail.value" [value]="segment" scrollable>
+    <ion-segment-button value="debrid" *ngIf="hasDebridAccount">
       <ion-label>
-        {{ 'sources.segments.debrid' | translate }}
+        {{ 'sources.segments.debrid' | translate }} ({{totalDebridSource}})
       </ion-label>
     </ion-segment-button>
     <ion-segment-button value="torrents">
       <ion-label>
-        {{ 'sources.segments.torrents' | translate }}
+        {{ 'sources.segments.torrents' | translate }} ({{totalTorrentSource}})
+      </ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="stats">
+      <ion-label>
+        {{ 'sources.segments.stats' | translate }}
       </ion-label>
     </ion-segment-button>
   </ion-segment>
@@ -121,6 +126,18 @@
           [isBestSource]="sourceDetail.bestTorrent ? source.id === sourceDetail.bestTorrent.id : false"
         ></wk-torrent-source-item>
       </div>
+    </ion-list>
+
+    <ion-list *ngSwitchCase="'stats'">
+      <ion-item>
+        {{ 'sources.statsInfo' | translate }}
+      </ion-item>
+      <ion-item *ngFor="let stat of sourceDetail.stats">
+        <ion-label>
+          {{stat.providerName}}
+        </ion-label>
+        <ion-badge [color]="stat.torrents > 0 ? 'success' : 'danger'">{{stat.torrents}}</ion-badge>
+      </ion-item>
     </ion-list>
   </div>
 </div>

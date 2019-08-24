@@ -8,9 +8,6 @@
   <p>
     <ion-grid no-margin no-padding>
       <ion-row>
-        <ion-col text-left no-margin no-padding>
-          <ion-badge color="dark">{{ source.providerName }}</ion-badge>
-        </ion-col>
         <ion-col *ngIf="source.isOnPM || source.isOnRD" text-right no-margin no-padding>
           <ion-badge> Debrid {{ source.isOnPM ? 'PM ' : '' }} {{source.isOnRD ? 'RD' : ''}} </ion-badge>
         </ion-col>
@@ -18,9 +15,10 @@
 
       <ion-row>
         <ion-col text-left no-margin no-padding>
-          <ion-badge color="light">{{
+          <ion-badge color="light" margin-end>{{
               source.size | bsFileSize
             }}</ion-badge>
+          <ion-badge color="dark">{{ source.providerName  }}</ion-badge>
         </ion-col>
 
         <ion-col text-right no-margin no-padding>

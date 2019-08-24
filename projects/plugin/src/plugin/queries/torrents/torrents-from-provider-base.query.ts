@@ -94,7 +94,7 @@ export abstract class TorrentsFromProviderBaseQuery {
     );
   }
 
-  protected static excludeDuplicateTorrentsByHash(torrents: TorrentSource[]) {
+  static excludeDuplicateTorrentsByHash(torrents: TorrentSource[]) {
     // First sort all torrents by seeds
     sortTorrentsBySeeds(torrents);
 

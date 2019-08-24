@@ -6,26 +6,32 @@ import { TorrentsEpisodesFromProvidersQuery } from '../../queries/torrents/torre
 import { SourceDetail } from '../../entities/source-detail';
 import { DebridSourceService } from './debrid-source.service';
 import { TorrentSourceService } from './torrent-source.service';
-import { TorrentSource } from '../../entities/torrent-source';
 import { SourceEpisodeQuery, SourceQuery } from '../../entities/source-query';
 import { HeliosCacheService } from '../provider-cache.service';
 import { getPreviousFileNamePlayed } from '../tools';
+import { TorrentSourceWithStats } from '../../entities/torrent-source-with-stats';
 
 @Injectable()
 export class SourceService {
-  constructor(private debridSourceService: DebridSourceService, private torrentSourceService: TorrentSourceService) {}
+  constructor(private debridSourceService: DebridSourceService, private torrentSourceService: TorrentSourceService) {
+  }
 
 
   private getSourceDetail(
-    torrents: TorrentSource[],
+    torrentsWithStats: TorrentSourceWithStats,
     sourceQuery: SourceQuery | SourceEpisodeQuery | string,
-    previousPlayedSourceName?: string
+    previousPlayedSourceName?: string,
+    skipUnWantedQualityDebrid = true
   ) {
+    const torrents = torrentsWithStats.torrents;
+
     const sourceDetail = {} as SourceDetail;
+    sourceDetail.stats = torrentsWithStats.stats;
+
     sourceDetail.torrentSources = torrents;
     sourceDetail.bestTorrent = this.torrentSourceService.getBestSource(torrents, previousPlayedSourceName);
 
-    return this.debridSourceService.getFromTorrents(torrents, sourceQuery).pipe(
+    return this.debridSourceService.getFromTorrents(torrents, sourceQuery, skipUnWantedQualityDebrid).pipe(
       switchMap(debridSources => {
         sourceDetail.debridSources = debridSources;
         return this.debridSourceService.getBestSource(debridSources, previousPlayedSourceName);
@@ -41,8 +47,8 @@ export class SourceService {
     const sourceQuery = TorrentsMoviesFromProvidersQuery.getSourceQuery(movie);
 
     return this.torrentSourceService.getMovieTorrents(movie).pipe(
-      switchMap(torrents => {
-        return this.getSourceDetail(torrents, sourceQuery);
+      switchMap(torrentsWithStats => {
+        return this.getSourceDetail(torrentsWithStats, sourceQuery);
       })
     );
   }
@@ -51,10 +57,10 @@ export class SourceService {
     const sourceQuery = TorrentsEpisodesFromProvidersQuery.getSourceQuery(show, episode);
 
     return this.torrentSourceService.getEpisodeTorrents(show, episode).pipe(
-      switchMap(torrents => {
+      switchMap(torrentsWithStats => {
         return HeliosCacheService.get<string>(getPreviousFileNamePlayed(show.traktId)).pipe(
           switchMap(previousFileNamePlayed => {
-            return this.getSourceDetail(torrents, sourceQuery, previousFileNamePlayed);
+            return this.getSourceDetail(torrentsWithStats, sourceQuery, previousFileNamePlayed);
           })
         );
       })
@@ -63,8 +69,8 @@ export class SourceService {
 
   get(sourceQuery: string, category: 'movie' | 'tv' | 'anime') {
     return this.torrentSourceService.getTorrents(sourceQuery, category).pipe(
-      switchMap(torrents => {
-        return this.getSourceDetail(torrents, sourceQuery);
+      switchMap(torrentsWithStats => {
+        return this.getSourceDetail(torrentsWithStats, sourceQuery, null, false);
       })
     );
   }

@@ -20,11 +20,14 @@ export class DebridSourceService {
     return torrents.filter(torrent => (torrent.isOnRD || torrent.isOnPM) === false);
   }
 
-  getFromTorrents(torrents: TorrentSource[], sourceQuery: SourceQuery | SourceEpisodeQuery | string) {
+  getFromTorrents(torrents: TorrentSource[], sourceQuery: SourceQuery | SourceEpisodeQuery | string, skipUnWantedQualityDebrid = true) {
 
     return from(this.settingsService.get())
       .pipe(
         map(settings => {
+          if (!skipUnWantedQualityDebrid) {
+            return torrents;
+          }
           return TorrentsFilterOnWantedQualityQuery.getData(torrents, settings.qualities)
         }),
         switchMap(filteredTorrents => {

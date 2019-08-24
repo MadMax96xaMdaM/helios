@@ -76,7 +76,8 @@ export class RealDebridSourcesFromTorrentsQuery {
             true,
             torrent.hash,
             torrent.isPackage,
-            'RD'
+            'RD',
+            torrent.providerName
           );
 
           debridSource.fromTorrent = true;
