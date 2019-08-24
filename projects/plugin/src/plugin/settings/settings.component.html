@@ -22,24 +22,36 @@
   </ion-item>
 </ion-list>
 
-
-<ion-list lines="full" *ngIf="settings">
-  <ion-list-header>
-    <ion-label>
-      <ion-icon name="play"></ion-icon>
-      {{ 'pages.settings.list.play-button.header' | translate }}
-    </ion-label>
-  </ion-list-header>
-  <ion-item>
-    <ion-label>{{ 'pages.settings.list.play-button.item' | translate }}</ion-label>
-    <ion-select [ngModel]="settings.defaultPlayButtonAction" (ngModelChange)="changeDefaultPlayButtonAction($event)">
-      <ion-select-option value="open-kodi">{{'actionSheets.open-source.options.open-kodi'|translate}}</ion-select-option>
-      <ion-select-option value="open-browser">{{'actionSheets.open-source.options.open-browser'|translate}}</ion-select-option>
-      <ion-select-option value="copy-url">{{'actionSheets.open-source.options.copy-url'|translate}}</ion-select-option>
-      <ion-select-option value="share-url">{{'actionSheets.open-source.options.share-url'|translate}}</ion-select-option>
-      <ion-select-option value="open-vlc">{{'actionSheets.open-source.options.open-vlc'|translate}}</ion-select-option>
-      <ion-select-option value="download-vlc">{{'actionSheets.open-source.options.download-vlc'|translate}}</ion-select-option>
-      <ion-select-option value="open-elementum">{{'actionSheets.open-source.options.open-elementum'|translate}}</ion-select-option>
-    </ion-select>
-  </ion-item>
-</ion-list>
+<div *ngIf="settings">
+  <ion-list lines="full">
+    <ion-list-header>
+      <ion-label>
+        <ion-icon name="play"></ion-icon>
+        {{ 'pages.settings.list.play-button.header' | translate }}
+      </ion-label>
+    </ion-list-header>
+    <ion-item>
+      <ion-label>{{ 'pages.settings.list.play-button.item' | translate }}</ion-label>
+      <ion-select [ngModel]="settings.defaultPlayButtonAction" (ngModelChange)="changeDefaultPlayButtonAction($event)">
+        <ion-select-option *ngFor="let action of availablePlayButtonActions" [value]="action">{{
+          'actionSheets.open-source.options.' + action | translate
+        }}</ion-select-option>
+      </ion-select>
+    </ion-item>
+  </ion-list>
+  <ion-list lines="full">
+    <ion-list-header>
+      <ion-label>
+        <ion-icon name="funnel"></ion-icon>
+        {{ 'pages.settings.list.actions.header' | translate }}
+      </ion-label>
+    </ion-list-header>
+    <ion-reorder-group (ionItemReorder)="doReorder($event)" disabled="false">
+      <ion-item *ngFor="let action of playButtonActionsSettings">
+        <ion-label>{{ 'actionSheets.open-source.options.' + action.action | translate }}</ion-label>
+        <ion-reorder slot="start"></ion-reorder>
+        <ion-toggle [(ngModel)]="action.enabled" (ionChange)="savePlayButtonAction()" ></ion-toggle>
+      </ion-item>
+    </ion-reorder-group>
+  </ion-list>
+</div>

@@ -17,11 +17,11 @@ import { PremiumizeTransferCreateForm } from './premiumize/forms/transfer/premiu
 import { RealDebridCacheUrlCommand } from './real-debrid/commands/real-debrid-cache-url.command';
 import { ClipboardService } from 'ngx-clipboard';
 import { TorrentGetUrlQuery } from '../queries/torrents/torrent-get-url.query';
-import { SourceService } from './sources/source.service';
 import { TorrentSource } from '../entities/torrent-source';
 import { DebridSource, DebridSourceFile } from '../entities/debrid-source';
 import { HeliosCacheService } from './provider-cache.service';
 import { getPreviousFileNamePlayed } from './tools';
+import { SettingsService } from './settings.service';
 
 @Injectable()
 export class OpenSourceService {
@@ -34,7 +34,7 @@ export class OpenSourceService {
     private toastService: ToastService,
     private loadingController: LoadingController,
     private clipboardService: ClipboardService,
-    private sourceService: SourceService
+    private settingsService: SettingsService
   ) {
   }
 
@@ -178,6 +178,7 @@ export class OpenSourceService {
 
     const premiumizeSettings = await this.debridAccountService.getPremiumizeSettings();
     const preferTranscodedFiles = premiumizeSettings ? premiumizeSettings.preferTranscodedFiles : false;
+    const settings = await this.settingsService.get();
 
     const currentHost = KodiAppService.currentHost;
 
@@ -195,60 +196,60 @@ export class OpenSourceService {
 
     const buttons = [];
 
-    buttons.push({
-      text: this.translateService.instant('actionSheets.open-source.options.open-browser'),
-      handler: () => {
-        this.openBrowser(debridSourceFile.url, debridSourceFile.transcodedUrl, title, posterUrl);
+    settings.availablePlayButtonActions.forEach(action => {
+      const buttonOptions = {
+        text: this.translateService.instant('actionSheets.open-source.options.' + action)
+      } as any;
+
+      switch (action) {
+        case 'open-browser':
+          buttonOptions.handler = () => {
+            this.openBrowser(debridSourceFile.url, debridSourceFile.transcodedUrl, title, posterUrl);
+          };
+          break;
+        case 'copy-url':
+          buttonOptions.role = 'copy-url';
+          buttonOptions.handler = () => {
+            this.toastService.simpleMessage('toasts.copyToClipboard', {element: 'Video URL'});
+          };
+          break;
+
+        case 'share-url':
+          buttonOptions.handler = () => {
+            this.share(
+              debridSourceFile.filename,
+              preferTranscodedFiles && debridSourceFile.transcodedUrl ? debridSourceFile.transcodedUrl : debridSourceFile.url
+            );
+          };
+          break;
+
+        case 'download-vlc':
+          buttonOptions.handler = () => {
+            this.downloadWithVlc(
+              preferTranscodedFiles && debridSourceFile.transcodedUrl ? debridSourceFile.transcodedUrl : debridSourceFile.url
+            );
+          };
+          break;
+
+        case 'open-vlc':
+          buttonOptions.handler = () => {
+            this.openVlc(preferTranscodedFiles && debridSourceFile.transcodedUrl ? debridSourceFile.transcodedUrl : debridSourceFile.url);
+          };
+          break;
+
+        case 'open-kodi':
+          buttonOptions.handler = () => {
+            this.openKodi(
+              preferTranscodedFiles && debridSourceFile.transcodedUrl ? debridSourceFile.transcodedUrl : debridSourceFile.url,
+              kodiOpenMedia
+            );
+          };
+          break;
       }
+
+      buttons.push(buttonOptions);
     });
 
-    buttons.push({
-      text: this.translateService.instant('actionSheets.open-source.options.copy-url'),
-      role: 'copy-url',
-      handler: () => {
-        this.toastService.simpleMessage('toasts.copyToClipboard', {element: 'Video URL'});
-      }
-    });
-    if (window['plugins'] && window['plugins'].socialsharing) {
-      buttons.push({
-        text: this.translateService.instant('actionSheets.open-source.options.share-url'),
-        handler: () => {
-          this.share(
-            debridSourceFile.filename,
-            preferTranscodedFiles && debridSourceFile.transcodedUrl ? debridSourceFile.transcodedUrl : debridSourceFile.url
-          );
-        }
-      });
-    }
-    buttons.push({
-      text: this.translateService.instant('actionSheets.open-source.options.open-vlc'),
-      handler: () => {
-        this.openVlc(preferTranscodedFiles && debridSourceFile.transcodedUrl ? debridSourceFile.transcodedUrl : debridSourceFile.url);
-      }
-    });
-
-    if (this.platform.is('ios')) {
-      buttons.push({
-        text: this.translateService.instant('actionSheets.open-source.options.download-vlc'),
-        handler: () => {
-          this.downloadWithVlc(
-            preferTranscodedFiles && debridSourceFile.transcodedUrl ? debridSourceFile.transcodedUrl : debridSourceFile.url
-          );
-        }
-      });
-    }
-
-    if (currentHost) {
-      buttons.unshift({
-        text: this.translateService.instant('actionSheets.open-source.options.open-kodi'),
-        handler: () => {
-          this.openKodi(
-            preferTranscodedFiles && debridSourceFile.transcodedUrl ? debridSourceFile.transcodedUrl : debridSourceFile.url,
-            kodiOpenMedia
-          );
-        }
-      });
-    }
 
     if (buttons.length === 1) {
       buttons[0].handler();
@@ -457,10 +458,14 @@ export class OpenSourceService {
   }
 
   share(torrentTitle: string, cachedUrl: string) {
-    window['plugins'].socialsharing.shareWithOptions({
-      url: cachedUrl,
-      chooserTitle: torrentTitle
-    });
 
+    if (window['plugins'] && window['plugins'].socialsharing) {
+
+      window['plugins'].socialsharing.shareWithOptions({
+        url: cachedUrl,
+        chooserTitle: torrentTitle
+      });
+
+    }
   }
 }

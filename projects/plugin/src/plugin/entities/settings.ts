@@ -1,6 +1,6 @@
 import { SourceQuality } from './source-quality';
 
-declare type PlayButtonAction =
+export declare type PlayButtonAction =
   'open-kodi'
   | 'open-browser'
   | 'copy-url'
@@ -8,6 +8,26 @@ declare type PlayButtonAction =
   | 'download-vlc'
   | 'share-url'
   | 'open-elementum';
+
+
+export const PlayButtonActionIos: PlayButtonAction[] = [
+  'open-elementum',
+  'copy-url',
+  'share-url',
+  'open-vlc',
+  'download-vlc',
+  'open-browser',
+  'open-kodi',
+];
+
+export const PlayButtonActionAndroid: PlayButtonAction[] = [
+  'open-elementum',
+  'copy-url',
+  'share-url',
+  'open-vlc',
+  'open-browser',
+  'open-kodi',
+];
 
 export interface SettingsQuality {
   quality: SourceQuality;
